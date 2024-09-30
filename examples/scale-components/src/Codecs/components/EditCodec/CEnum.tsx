@@ -16,7 +16,6 @@ export const CEnum: EditEnum = ({
   inner,
   shape,
   onValueChanged,
-  onBinChanged,
 }) => {
   let shouldNest = false
   if (type !== "blank") {
