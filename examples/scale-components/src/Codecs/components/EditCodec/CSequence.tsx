@@ -71,3 +71,5 @@ export const CSequence: EditSequence = ({
     </ul>
   )
 }
+
+const DraggableList = () => {}

@@ -3,7 +3,7 @@ import { EditStruct } from "../../lib"
 
 export const CStruct: EditStruct = ({ innerComponents }) => (
   <div className="flex flex-col text-left">
-    <ul className="ml-[20px] mb-5">
+    <ul className="mb-5">
       {Object.entries(innerComponents).map(([key, jsx]) => (
         <li key={key} className="flex flex-col">
           <Accordion.Root

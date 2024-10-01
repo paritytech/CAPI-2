@@ -75,7 +75,6 @@ export const CBigNumber: EditBigNumber = ({
           <span className="text-red-600 text-sm">{isValid.reason}</span>
         )}
       </div>
-      <BinaryInput encodedValue={encodedValue} onBinChanged={onBinChanged} />
     </div>
   )
 }

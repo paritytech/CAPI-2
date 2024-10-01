@@ -1,0 +1,88 @@
+import * as Accordion from "@radix-ui/react-accordion"
+import { ChevronDownIcon } from "@radix-ui/react-icons"
+import React, { ReactNode } from "react"
+import {
+  EditArray,
+  EditBool,
+  EditEthAccount,
+  EditOption,
+  EditResult,
+  EditSequence,
+  EditStr,
+  EditTuple,
+  EditVoid,
+  EditBigNumber,
+  EditAccountId,
+  NOTIN,
+  EditNumber,
+  EditBytes,
+} from "../../../lib"
+
+export const CVoid: EditVoid = () => null
+
+export const CBool: EditBool = CVoid
+export const CStr: EditStr = CVoid
+export const CEthAccount: EditEthAccount = CVoid
+export const CBigNumber: EditBigNumber = CVoid
+export const CNumber: EditNumber = CVoid
+export const CAccountId: EditAccountId = CVoid
+export const CBytes: EditBytes = CVoid
+
+export const CSequence: EditSequence = ({ innerComponents }) => {
+  return <ListDisplay innerComponents={innerComponents} />
+}
+
+export const CArray: EditArray = ({ innerComponents }) => {
+  return <ListDisplay innerComponents={innerComponents} />
+}
+
+const ListDisplay: React.FC<{ innerComponents: ReactNode[] }> = ({
+  innerComponents,
+}) => {
+  return (
+    <ul>
+      {innerComponents.map((component, idx) => {
+        return (
+          <Accordion.Root
+            key={idx}
+            type="single"
+            collapsible
+            defaultValue="item-0"
+            className="my-2 p-2"
+          >
+            <Accordion.AccordionItem value={`item-${idx}`}>
+              <Accordion.AccordionTrigger className="flex flex-row w-full items-center gap-2 group mb-2">
+                ITEM {idx + 1}
+                <ChevronDownIcon className="group-state-open:rotate-180 transition-all" />
+              </Accordion.AccordionTrigger>
+              <Accordion.AccordionContent>
+                {component}
+              </Accordion.AccordionContent>
+            </Accordion.AccordionItem>
+          </Accordion.Root>
+        )
+      })}
+    </ul>
+  )
+}
+
+export const CTuple: EditTuple = ({ innerComponents }) => {
+  return (
+    <ul>
+      Tuple [
+      {innerComponents.map((jsx) => (
+        <li>{jsx},</li>
+      ))}
+      ]
+    </ul>
+  )
+}
+
+export const COption: EditOption = ({ value, inner }) =>
+  value === undefined ? "null" : inner
+
+export const CResult: EditResult = ({ value, inner }) => (
+  <>
+    {value !== NOTIN && (value.success ? "ok" : "ko")}-{inner}
+  </>
+)

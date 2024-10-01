@@ -2,7 +2,7 @@ import "./App.css"
 import { metadata } from "@polkadot-api/substrate-bindings"
 import rawMetadata from "./raw-metadata"
 import { ViewCodec } from "./Codecs/components"
-import { EditCodec } from "./Codecs/components/EditCodec"
+import { EditCodec, EditCodec2 } from "./Codecs/components/EditCodec"
 
 const metadataDecoded = metadata.dec(rawMetadata)
 

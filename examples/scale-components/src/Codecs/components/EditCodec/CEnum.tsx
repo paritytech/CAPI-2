@@ -1,23 +1,19 @@
 import { clsx } from "clsx"
 import { EditEnum } from "../../lib"
 import { NOTIN } from "../../lib"
-import { Binary } from "@polkadot-api/substrate-bindings"
 import { useEffect } from "react"
 
-type Tag = {
-  idx: number
-  tag: string
-}
 export const CEnum: EditEnum = ({
   type,
   value,
-  encodedValue,
   tags,
   inner,
   shape,
   onValueChanged,
+  encodedValue,
 }) => {
-  let shouldNest = false
+  console.log("type", type, encodedValue)
+  let isComplex = false
   if (type !== "blank") {
     let innerShape = shape.value[value.type]
     let innerType
@@ -27,7 +23,7 @@ export const CEnum: EditEnum = ({
     } else {
       innerType = innerShape.type
     }
-    shouldNest =
+    isComplex =
       innerType === "array" ||
       innerType === "sequence" ||
       innerType === "struct" ||
@@ -38,64 +34,40 @@ export const CEnum: EditEnum = ({
   const disabled = false
 
   useEffect(() => {
+    console.log("type", type)
     if (tags.length > 0 && type === "blank") {
       onValueChanged({ type: tags[0].tag, value: NOTIN })
     }
   }, [tags])
   return (
-    <div
-      className={clsx(
-        "flex text-left gap-2 w-fit ml-0 items-start",
-        shouldNest
-          ? "flex-col border-[1px] border-dashed border-gray-500"
-          : "flex-row",
-      )}
-    >
-      <div>
-        <SelectType
-          disabled={disabled}
-          onValueChanged={onValueChanged}
-          tags={tags}
-          value={value}
-        />
-
-        <span className="text-slate-200">
-          {shouldNest && encodedValue && Binary.fromBytes(encodedValue).asHex()}
-        </span>
+    <div className="flex flex-col">
+      <div className={clsx("flex flex-row border-[1px] border-dashed my-2")}>
+        <div>
+          <select
+            disabled={disabled}
+            className={clsx(
+              "w-fit bg-slate-700 p-2 rounded pr-8 border-r-4 border-slate-700",
+              disabled && "appearance-none",
+            )}
+            onChange={(e) =>
+              onValueChanged({ type: e.target.value, value: NOTIN })
+            }
+            value={value === NOTIN ? "" : value.type}
+          >
+            {tags.map(({ tag }) => (
+              <option
+                key={tag}
+                value={tag}
+                selected={value !== NOTIN && tag === value.type}
+              >
+                {tag}
+              </option>
+            ))}
+          </select>
+        </div>
+        {!isComplex && inner}
       </div>
-      <div className={clsx(shouldNest && "ml-[30px]")}>{inner}</div>
-      <span className="text-slate-200">
-        {!shouldNest && encodedValue && Binary.fromBytes(encodedValue).asHex()}
-      </span>
+      {isComplex && inner}
     </div>
-  )
-}
-
-const SelectType: React.FC<{
-  tags: Tag[]
-  value: { type: string; value: any } | NOTIN
-  onValueChanged: ({ type, value }: { type: string; value: NOTIN }) => void
-  disabled: boolean
-}> = ({ disabled, value, onValueChanged, tags }) => {
-  return (
-    <select
-      disabled={disabled}
-      className={clsx(
-        "w-fit bg-slate-700 p-2 rounded pr-8 border-r-4 border-slate-700",
-        disabled && "appearance-none",
-      )}
-      onChange={(e) => onValueChanged({ type: e.target.value, value: NOTIN })}
-      defaultValue={""}
-    >
-      {tags.map(({ tag }) => (
-        <option
-          key={tag}
-          value={tag}
-          selected={value !== NOTIN && tag === value.type}
-        >
-          {tag}
-        </option>
-      ))}
-    </select>
   )
 }

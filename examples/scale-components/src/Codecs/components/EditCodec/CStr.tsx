@@ -1,12 +1,7 @@
 import { EditStr } from "../../lib"
 import { withDefault } from "../utils/default"
 
-export const CStr: EditStr = ({
-  value,
-  encodedValue,
-  type,
-  onValueChanged,
-}) => {
+export const CStr: EditStr = ({ value, onValueChanged }) => {
   return (
     <div>
       <input
