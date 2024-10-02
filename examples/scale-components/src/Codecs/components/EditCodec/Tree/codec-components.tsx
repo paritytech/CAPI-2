@@ -43,23 +43,12 @@ const ListDisplay: React.FC<{ innerComponents: ReactNode[] }> = ({
     <ul>
       {innerComponents.map((component, idx) => {
         return (
-          <Accordion.Root
-            key={idx}
-            type="single"
-            collapsible
-            defaultValue="item-0"
-            className="my-2 p-2"
-          >
-            <Accordion.AccordionItem value={`item-${idx}`}>
-              <Accordion.AccordionTrigger className="flex flex-row w-full items-center gap-2 group mb-2">
-                ITEM {idx + 1}
-                <ChevronDownIcon className="group-state-open:rotate-180 transition-all" />
-              </Accordion.AccordionTrigger>
-              <Accordion.AccordionContent>
-                {component}
-              </Accordion.AccordionContent>
-            </Accordion.AccordionItem>
-          </Accordion.Root>
+          <div key={idx} className="my-2 p-2">
+            <div className="flex flex-row w-full items-center gap-2">
+              |-- ITEM {idx + 1}
+            </div>
+            <div className="ml-[30px]">{component}</div>
+          </div>
         )
       })}
     </ul>

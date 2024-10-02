@@ -23,22 +23,26 @@ function App() {
 
   const binaries = [input1, input2, lists, accounts, hexBinary, textBinary]
 
+  const xcmBinaryWithAssets =
+    "0x630b0100000100000108000100002c00000000080000000000"
+
   return (
     <div className="flex flex-col items-start max-w-screen-md">
       <h1 className="text-lg my-5 text-wrap break-all">Decoding: {selected}</h1>
-      {/* <EditCodec
+      <EditCodec2
         {...{
           metadata: metadataDecoded.metadata.value as any,
           codecType: 93,
+          value: xcmBinaryWithAssets,
         }}
-      /> */}
-      <ViewCodec
+      />
+      {/* <ViewCodec
         {...{
           metadata: metadataDecoded.metadata.value as any,
           codecType: 93,
           value: selected,
         }}
-      />
+      /> */}
       {/* {binaries.map((binary) => {
         return (
           <ViewCodec

@@ -11,8 +11,12 @@ import {
 } from "../../lib"
 import { withDefault } from "../utils/default"
 
-export const CBool: EditBool = ({ value }) => (
-  <input type="checkbox" checked={withDefault(value, false)} />
+export const CBool: EditBool = ({ value, onValueChanged }) => (
+  <input
+    type="checkbox"
+    checked={withDefault(value, false)}
+    onChange={(evt) => onValueChanged(Boolean(evt.target.value))}
+  />
 )
 
 export const CVoid: EditVoid = () => null

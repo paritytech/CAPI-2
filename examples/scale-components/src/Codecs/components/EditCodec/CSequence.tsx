@@ -43,15 +43,13 @@ export const CSequence: EditSequence = ({
     <ul className="text-gray-50">
       {innerComponents.map((item, idx) => (
         <li
+          key={idx}
           draggable
           onDragStart={() => handleDragStart(idx)}
           onDragEnter={() => handleDragEnter(idx)}
           onDragEnd={handleDragEnd}
         >
-          <div
-            key={idx}
-            className="flex flex-col border-[1px] border-dashed my-1"
-          >
+          <div className="flex flex-col border-[1px] border-dashed my-1">
             <div className="flex flex-row gap-2 items-center">
               <span>Item {idx + 1}</span>
               <button

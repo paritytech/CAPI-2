@@ -19,20 +19,16 @@ export const CEnum: EditEnum = ({ value, inner, shape }) => {
       innerType === "enum" ||
       innerType === "result"
   }
-  console.log("IM here", value)
-
   if (value === NOTIN) return null
 
   return (
     <div
       className={clsx(
-        "flex text-left gap-2 ml-0 items-start",
-        shouldNest
-          ? "flex-col border-l-[1px] border-dashed border-gray-500"
-          : "flex-row",
+        "flex text-left items-start",
+        shouldNest ? "flex-col" : "flex-row gap-2 ",
       )}
     >
-      <span>{value.type}</span>
+      <span>|--{value.type}</span>
       <div className={clsx(shouldNest && "ml-[30px]")}>{inner}</div>
     </div>
   )

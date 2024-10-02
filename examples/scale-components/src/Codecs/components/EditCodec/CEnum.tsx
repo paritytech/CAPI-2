@@ -12,7 +12,6 @@ export const CEnum: EditEnum = ({
   onValueChanged,
   encodedValue,
 }) => {
-  console.log("type", type, encodedValue)
   let isComplex = false
   if (type !== "blank") {
     let innerShape = shape.value[value.type]
@@ -34,7 +33,6 @@ export const CEnum: EditEnum = ({
   const disabled = false
 
   useEffect(() => {
-    console.log("type", type)
     if (tags.length > 0 && type === "blank") {
       onValueChanged({ type: tags[0].tag, value: NOTIN })
     }

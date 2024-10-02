@@ -60,7 +60,6 @@ export const CBigNumber: EditBigNumber = ({
                       reason: "Too low. Min is " + minLen,
                     })
                   else {
-                    console.log("here, valid", num)
                     setIsValid({ valid: true })
                     onValueChanged(num)
                   }
