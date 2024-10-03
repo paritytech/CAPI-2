@@ -33,7 +33,7 @@ export const CAccountId: EditAccountId = ({ value, onValueChanged }) => {
   }, [localInput])
 
   return (
-    <div className="min-h-16">
+    <div>
       <div className="flex flex-row bg-gray-700 rounded p-2 gap-2 items-center px-2">
         <span className="text-sm text-gray-400">AccountId</span>
         <input

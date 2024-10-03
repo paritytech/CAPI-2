@@ -34,7 +34,7 @@ export const CBigNumber: EditBigNumber = ({
   }, [localInput, numType])
 
   return (
-    <div className="min-h-16">
+    <div>
       <div className="mr-2">
         <div className="flex flex-row bg-gray-700 rounded p-2 gap-2 items-center px-2 w-fit">
           <span className="text-sm text-gray-400">{numType}</span>

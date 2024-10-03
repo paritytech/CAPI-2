@@ -28,7 +28,9 @@ export const CEnum: EditEnum = ({ value, inner, shape }) => {
         shouldNest ? "flex-col" : "flex-row gap-2 ",
       )}
     >
-      <span>|--{value.type}</span>
+      <span className="hover:text-pink-400 cursor-pointer">
+        |--{value.type}
+      </span>
       <div className={clsx(shouldNest && "ml-[30px]")}>{inner}</div>
     </div>
   )

@@ -43,8 +43,8 @@ const ListDisplay: React.FC<{ innerComponents: ReactNode[] }> = ({
     <ul>
       {innerComponents.map((component, idx) => {
         return (
-          <div key={idx} className="my-2 p-2">
-            <div className="flex flex-row w-full items-center gap-2">
+          <div key={idx} className="my-2">
+            <div className="flex flex-row w-full items-center gap-2 hover:text-pink-400 cursor-pointer">
               |-- ITEM {idx + 1}
             </div>
             <div className="ml-[30px]">{component}</div>

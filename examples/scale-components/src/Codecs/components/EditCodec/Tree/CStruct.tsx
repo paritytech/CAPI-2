@@ -13,7 +13,7 @@ export const CStruct: EditStruct = ({ innerComponents, shape }) => {
 
         return (
           <div key={key} className="mb-2">
-            <span>|--{key}</span>
+            <span className="hover:text-pink-400 cursor-pointer">|--{key}</span>
             <div className="ml-[30px]">{isComplex && jsx}</div>
           </div>
         )

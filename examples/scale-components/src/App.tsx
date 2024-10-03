@@ -2,6 +2,7 @@ import "./App.css"
 import { metadata } from "@polkadot-api/substrate-bindings"
 import rawMetadata from "./raw-metadata"
 import { ViewCodec } from "./Codecs/components"
+import "./scroll.js"
 import { EditCodec, EditCodec2 } from "./Codecs/components/EditCodec"
 
 const metadataDecoded = metadata.dec(rawMetadata)
@@ -19,21 +20,23 @@ function App() {
   const hexBinary = "0x1a050000081110821a060042600a00"
   const textBinary = "0x1a0500001468656c6c6f0000"
 
-  const selected = textBinary
-
   const binaries = [input1, input2, lists, accounts, hexBinary, textBinary]
 
   const xcmBinaryWithAssets =
     "0x630b0100000100000108000100002c00000000080000000000"
 
+  const selected = xcmBinaryWithAssets
+
   return (
-    <div className="flex flex-col items-start max-w-screen-md">
-      <h1 className="text-lg my-5 text-wrap break-all">Decoding: {selected}</h1>
+    <div className="flex flex-col items-start max-w-screen-md h-screen">
+      <h1 className="text-lg py-5 text-wrap break-all fixed bg-[#121212] text-left w-full">
+        Decoding: {selected}
+      </h1>
       <EditCodec2
         {...{
           metadata: metadataDecoded.metadata.value as any,
           codecType: 93,
-          value: xcmBinaryWithAssets,
+          value: selected,
         }}
       />
       {/* <ViewCodec
