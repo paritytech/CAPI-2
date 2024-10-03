@@ -38,8 +38,8 @@ export const CEnum: EditEnum = ({
     }
   }, [tags])
   return (
-    <div className="flex flex-col">
-      <div className={clsx("flex flex-row border-[1px] border-dashed my-2")}>
+    <div className="flex flex-col bg-[rgba(55,65,81,0.15)] m-2 p-2">
+      <div className={clsx("flex flex-row my-2")}>
         <div>
           <select
             disabled={disabled}
