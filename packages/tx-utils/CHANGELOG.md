@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add support to Extrinsic v5 decoding
+
 ### Fixed
 
 - Fully support metadata v14 for extrinsic decoding

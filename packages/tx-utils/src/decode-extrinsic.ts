@@ -3,18 +3,13 @@ import {
   compactNumber,
   createDecoder,
   Decoder,
-  enhanceDecoder,
+  extrinsicFormat,
   StringRecord,
   Struct,
   u8,
 } from "@polkadot-api/substrate-bindings"
 import { getMetadata } from "./get-metadata"
 import { getDynamicBuilder, getLookupFn } from "@polkadot-api/metadata-builders"
-
-const versionDec = enhanceDecoder(u8[1], (value) => ({
-  version: value & ~(1 << 7),
-  signed: !!(value & (1 << 7)),
-}))
 
 const allBytesDec = Bin(Infinity).dec
 
@@ -53,12 +48,36 @@ export const getExtrinsicDecoder = (metadataRaw: Uint8Array) => {
     signature = dynamicBuilder.buildDefinition(sig)[1]
   }
 
-  const body = Struct.dec({ address, signature, extra, callData: allBytesDec })
+  const v4Body = Struct.dec({
+    address,
+    signature,
+    extra,
+    callData: allBytesDec,
+  })
+  const v5Body = Struct.dec({
+    address,
+    signature,
+    extensionVersion: u8.dec,
+    extra,
+    callData: allBytesDec,
+  })
+  const generalBody = Struct.dec({
+    extensionVersion: u8.dec,
+    extra,
+    callData: allBytesDec,
+  })
 
   return createDecoder((data) => {
     const len = compactNumber.dec(data)
-    const { signed, version } = versionDec(data)
-    if (!signed) return { len, signed, version, callData: allBytesDec(data) }
-    return { len, signed, version, ...body(data) }
+    const { type, version } = extrinsicFormat[1](data)
+    if (version === 4) {
+      if (type === "bare")
+        return { len, signed: false, version, callData: allBytesDec(data) }
+      return { len, signed: true, version, ...v4Body(data) }
+    }
+    if (type === "bare")
+      return { len, type, version, callData: allBytesDec(data) }
+    if (type === "signed") return { len, type, version, ...v5Body(data) }
+    return { len, type, version, ...generalBody(data) }
   })
 }

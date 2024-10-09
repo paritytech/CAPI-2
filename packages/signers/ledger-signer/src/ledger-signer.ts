@@ -4,21 +4,15 @@ import type { PolkadotSigner } from "@polkadot-api/polkadot-signer"
 import {
   Binary,
   compact,
-  enhanceEncoder,
+  extrinsicFormat,
   u16,
   u32,
-  u8,
 } from "@polkadot-api/substrate-bindings"
 import { mergeUint8 } from "@polkadot-api/utils"
 import { getMetadata } from "./get-metadata"
 import { CLA, DEFAULT_SS58, INS, P1, P2 } from "./consts"
 
 const METADATA_IDENTIFIER = "CheckMetadataHash"
-const versionCodec = enhanceEncoder(
-  u8.enc,
-  (value: { signed: boolean; version: number }) =>
-    (+!!value.signed << 7) | value.version,
-)
 
 // 44'/354'
 const START_PATH = Uint8Array.from([44, 0, 0, 128, 98, 1, 0, 128])
@@ -292,6 +286,9 @@ export class LedgerSigner {
         ) == null
       )
         throw new Error("No `CheckMetadataHash` sigExt found")
+      const { version } = v15.extrinsic
+      if (version !== 4 && version !== 5)
+        throw new Error(`Unsupported extrinsic version ${version}`)
       const extra: Array<Uint8Array> = []
       const additionalSigned: Array<Uint8Array> = []
       v15.extrinsic.signedExtensions.map(({ identifier }) => {
@@ -314,10 +311,13 @@ export class LedgerSigner {
         merkleizer.getProofForExtrinsicPayload(toSign),
       )
       const preResult = mergeUint8(
-        versionCodec({ signed: true, version: v15.extrinsic.version }),
+        extrinsicFormat[0]({ version, type: "signed" }),
         // converting it to a `MultiAddress` enum, where the index 0 is `Id(AccountId)`
         new Uint8Array([0, ...publicKey]),
         signature,
+        // FIXME: extension version should come from metadata, already
+        // follow https://github.com/paritytech/polkadot-sdk/pull/3685
+        version === 5 ? new Uint8Array([0]) : new Uint8Array(),
         ...extra,
         callData,
       )
