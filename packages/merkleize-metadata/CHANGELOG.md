@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add support for extrinsic v5
+
 ## 1.1.6 - 2024-10-05
 
 ### Fixed

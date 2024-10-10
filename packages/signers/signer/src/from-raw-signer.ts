@@ -5,17 +5,10 @@ import {
   type V15,
   compact,
   decAnyMetadata,
-  enhanceEncoder,
-  u8,
+  extrinsicFormat,
 } from "@polkadot-api/substrate-bindings"
 import { mergeUint8 } from "@polkadot-api/utils"
 import type { PolkadotSigner } from "@polkadot-api/polkadot-signer"
-
-const versionCodec = enhanceEncoder(
-  u8.enc,
-  (value: { signed: boolean; version: number }) =>
-    (+!!value.signed << 7) | value.version,
-)
 
 const signingTypeId: Record<"Ecdsa" | "Ed25519" | "Sr25519", number> = {
   Ed25519: 0,
@@ -57,6 +50,8 @@ export function getPolkadotSigner(
     }
 
     const { version } = decMeta.extrinsic
+    if (version !== 4 && version !== 5)
+      throw new Error(`Unsupported extrinsic version ${version}`)
     const extra: Array<Uint8Array> = []
     const additionalSigned: Array<Uint8Array> = []
     decMeta.extrinsic.signedExtensions.map(({ identifier }) => {
@@ -72,10 +67,13 @@ export function getPolkadotSigner(
     const signed = await sign(toSign.length > 256 ? hasher(toSign) : toSign)
 
     const preResult = mergeUint8(
-      versionCodec({ signed: true, version }),
+      extrinsicFormat[0]({ version, type: "signed" }),
       // converting it to a `MultiAddress` enum, where the index 0 is `Id(AccountId)`
       new Uint8Array([0, ...publicKey]),
       new Uint8Array([signingTypeId[signingType], ...signed]),
+      // FIXME: extension version should come from metadata, already
+      // follow https://github.com/paritytech/polkadot-sdk/pull/3685
+      version === 5 ? new Uint8Array([0]) : new Uint8Array(),
       ...extra,
       callData,
     )

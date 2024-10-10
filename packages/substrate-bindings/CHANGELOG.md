@@ -5,6 +5,7 @@
 ### Added
 
 - New `FixedSizeBinary` static method `fromAccountId32`
+- Add `extrinsicFormat` codec
 
 ## 0.9.1 - 2024-10-05
 

@@ -255,19 +255,23 @@ export const merkleizeMetadata = (
     transaction: Uint8Array | HexString,
     txAdditionalSigned?: Uint8Array | HexString,
   ) => {
-    let [, { version, signed }, bytes] = extrinsicDec(transaction)
+    let [, { version, type }, bytes] = extrinsicDec(transaction)
+
+    if (type === "general")
+      throw new Error("General transactions are not supported")
 
     if (version !== extrinsic.version)
       throw new Error("Incorrect extrinsic version")
 
-    const typeRefs: TypeRef[] = signed
-      ? [
-          extrinsic.addressTy,
-          extrinsic.signatureTy,
-          ...extrinsic.signedExtensions.map((x) => x.includedInExtrinsic),
-          extrinsic.callTy,
-        ]
-      : [extrinsic.callTy]
+    const typeRefs: TypeRef[] =
+      type === "signed"
+        ? [
+            extrinsic.addressTy,
+            extrinsic.signatureTy,
+            ...extrinsic.signedExtensions.map((x) => x.includedInExtrinsic),
+            extrinsic.callTy,
+          ]
+        : [extrinsic.callTy]
 
     if (txAdditionalSigned) {
       bytes = mergeUint8([bytes, toBytes(txAdditionalSigned)])
