@@ -5,17 +5,16 @@ import {
   type InkDescriptors,
   type InkStorageDescriptor,
 } from "@polkadot-api/ink-contracts"
-import { Binary, Enum, type ResultPayload, type TypedApi } from "polkadot-api"
+import { Binary, Enum, type TypedApi } from "polkadot-api"
 import type {
   InkSdkApis,
   InkSdkPallets,
   SdkDefinition,
-  StorageError,
 } from "./descriptor-types"
 import { flattenErrors, flattenValues } from "./flatten"
-import type { Contract, StorageRootType } from "./sdk-types"
+import { getStorage } from "./get-storage"
+import type { Contract } from "./sdk-types"
 import { wrapAsyncTx } from "./utils"
-import type { SdkStorage } from "./get-storage"
 
 export function getContract<
   T extends TypedApi<SdkDefinition<InkSdkPallets, InkSdkApis>>,
@@ -30,34 +29,7 @@ export function getContract<
     typedApi.query.Contracts.ContractInfoOf.getValue(address)
 
   return {
-    getStorage(): SdkStorage<D["__types"]["storage"]> {
-      return null as any
-    },
-    async getRootStorage(): Promise<
-      ResultPayload<
-        StorageRootType<D["__types"]["storage"]> | undefined,
-        StorageError
-      >
-    > {
-      const rootStorage = inkClient.storage("")
-      const result = await typedApi.apis.ContractsApi.get_storage(
-        address,
-        rootStorage.encode(undefined),
-      )
-
-      if (result.success) {
-        return {
-          success: true,
-          value: result.value
-            ? (rootStorage.decode(result.value) as any)
-            : undefined,
-        }
-      }
-      return {
-        success: false,
-        value: result.value,
-      }
-    },
+    getStorage: () => getStorage(typedApi, inkClient, address),
     async query(message, args) {
       const msg = inkClient.message(message)
 

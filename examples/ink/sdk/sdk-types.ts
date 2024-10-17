@@ -114,12 +114,6 @@ export interface Contract<
   >,
 > {
   getStorage(): SdkStorage<D["__types"]["storage"]>
-  getRootStorage(): Promise<
-    ResultPayload<
-      StorageRootType<D["__types"]["storage"]> | undefined,
-      StorageError
-    >
-  >
   query: <L extends string & keyof D["__types"]["messages"]>(
     message: L,
     args: QueryArgs<D["__types"]["messages"][L]["message"]>,
