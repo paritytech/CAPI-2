@@ -3,13 +3,14 @@ import type {
   InkCallableDescriptor,
   InkClient,
   InkDescriptors,
+  InkMetadataLookup,
   InkStorageDescriptor,
 } from "@polkadot-api/ink-contracts"
 import type { ResultPayload, TypedApi } from "polkadot-api"
 import type {
-  SdkDefinition,
-  InkSdkPallets,
   InkSdkApis,
+  InkSdkPallets,
+  SdkDefinition,
   StorageError,
 } from "./descriptor-types"
 
@@ -27,6 +28,7 @@ export function getStorage<
 >(
   typedApi: T,
   inkClient: InkClient<D>,
+  lookup: InkMetadataLookup,
   address: string,
 ): SdkStorage<D["__types"]["storage"]> {
   type S = D["__types"]["storage"]
@@ -71,8 +73,37 @@ export function getStorage<
         return root
       }
 
-      return null as any
+      const value = root.value as S[""]["value"] & UnNest<Omit<S, "">>
+      for (const path in lookup.storage) {
+        if (path === "") continue
+        assignFnAtPath(value, path.split("."), (key: any) =>
+          getStorage(path, key),
+        )
+      }
+
+      return {
+        success: true,
+        value,
+      }
     },
+  }
+}
+
+const assignFnAtPath = (
+  target: any,
+  segments: string[],
+  value: (...args: unknown[]) => unknown,
+) => {
+  const [current, ...rest] = segments
+  if (rest.length === 0) {
+    if (typeof target[current] === "object") {
+      target[current] = Object.assign(value, target[current])
+    } else {
+      target[current] = value
+    }
+  } else {
+    target[current] = current in target ? target[current] : {}
+    assignFnAtPath(target[current], rest, value)
   }
 }
 
@@ -114,7 +145,7 @@ type UnNest<S extends InkStorageDescriptor> = UnionToIntersection<
       K,
       (
         ...args: S[K]["key"] extends undefined ? [] : [key: S[K]["key"]]
-      ) => Promise<S[K]["value"]>
+      ) => Promise<ResultPayload<S[K]["value"], StorageError>>
     >
   }[string & keyof S]
 >

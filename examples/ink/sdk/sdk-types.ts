@@ -135,10 +135,15 @@ export interface Contract<
   dryRunRedeploy: DryRunDeployFn<T, D>
   redeploy: DeployFn<D>
   filterEvents: (
-    events?: Array<{
-      event: GenericEvent
-      topics: FixedSizeBinary<number>[]
-    }>,
+    events?: Array<
+      | {
+          event: GenericEvent
+          topics: Binary[]
+        }
+      | (GenericEvent & {
+          topics: Binary[]
+        })
+    >,
   ) => Array<D["__types"]["event"]>
 }
 

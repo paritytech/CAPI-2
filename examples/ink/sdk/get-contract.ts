@@ -3,6 +3,7 @@ import {
   type InkCallableDescriptor,
   type InkClient,
   type InkDescriptors,
+  type InkMetadataLookup,
   type InkStorageDescriptor,
 } from "@polkadot-api/ink-contracts"
 import { Binary, Enum, type TypedApi } from "polkadot-api"
@@ -24,12 +25,17 @@ export function getContract<
     InkCallableDescriptor,
     Event
   >,
->(typedApi: T, inkClient: InkClient<D>, address: string): Contract<T, D> {
+>(
+  typedApi: T,
+  inkClient: InkClient<D>,
+  lookup: InkMetadataLookup,
+  address: string,
+): Contract<T, D> {
   const contractDetails =
     typedApi.query.Contracts.ContractInfoOf.getValue(address)
 
   return {
-    getStorage: () => getStorage(typedApi, inkClient, address),
+    getStorage: () => getStorage(typedApi, inkClient, lookup, address),
     async query(message, args) {
       const msg = inkClient.message(message)
 

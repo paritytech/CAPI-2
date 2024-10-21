@@ -8,7 +8,7 @@ import { Binary, createClient } from "polkadot-api"
 import { withPolkadotSdkCompat } from "polkadot-api/polkadot-sdk-compat"
 import { getPolkadotSigner } from "polkadot-api/signer"
 import { getWsProvider } from "polkadot-api/ws-provider/web"
-import { ADDRESS } from "./address"
+import { ADDRESS, aliceSigner } from "./address"
 import { createInkSdk } from "./sdk/ink-sdk"
 
 const alice_mnemonic =
@@ -37,12 +37,28 @@ const psp22Contract = psp22Sdk.getContract(ADDRESS.psp22)
 // Storage query
 {
   console.log("Query storage of contract")
-  const storage = await escrowContract.getRootStorage()
+  const storage = await escrowContract.getStorage().getRoot()
 
   if (storage.success && storage.value) {
     console.log("storage nft", storage.value.nft)
     console.log("storage price", storage.value.price)
     console.log("storage seller", storage.value.seller)
+  } else {
+    console.log("error", storage.value)
+  }
+}
+
+// Nested storage query
+{
+  console.log("Query storage of psp22 contract")
+  const storage = await psp22Contract.getStorage().getRoot()
+
+  if (storage.success && storage.value) {
+    console.log("total supply", storage.value.data.total_supply)
+    const aliceBalance = await storage.value.data.balances(
+      "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
+    )
+    console.log("alice balance", aliceBalance)
   } else {
     console.log("error", storage.value)
   }
@@ -67,17 +83,35 @@ const psp22Contract = psp22Sdk.getContract(ADDRESS.psp22)
 // Dry run
 {
   console.log("IncreaseAllowance")
+  const data = {
+    spender: ADDRESS.psp22,
+    delta_value: 10n,
+  }
   const result = await psp22Contract.query("PSP22::increase_allowance", {
     origin: ADDRESS.alice,
-    data: {
-      spender: ADDRESS.psp22,
-      delta_value: 1000000n,
-    },
+    data,
   })
 
   if (result.success) {
     console.log("IncreaseAllowance success")
     console.log("events", result.value.events)
+
+    if (result.value.events.length) {
+      console.log("sending transaction")
+      const realDeal = await psp22Contract
+        .send("PSP22::increase_allowance", {
+          origin: ADDRESS.alice,
+          data,
+        })
+        .signAndSubmit(aliceSigner)
+
+      if (realDeal.ok) {
+        console.log("block", realDeal.block)
+        console.log("events", psp22Contract.filterEvents(realDeal.events))
+      } else {
+        console.log("error", realDeal.dispatchError)
+      }
+    }
   } else {
     console.log("error", result.value)
   }
