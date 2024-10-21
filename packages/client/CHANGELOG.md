@@ -6,9 +6,12 @@
 
 - Expose `topics` on transaction events.
 
+## 1.6.2 - 2024-10-18
+
 ### Fixed
 
 - Support chains with `u64` block numbers
+- Avoid treating `best` and `finalized` requests as "static" block requests.
 
 ## 1.6.1 - 2024-10-16
 
