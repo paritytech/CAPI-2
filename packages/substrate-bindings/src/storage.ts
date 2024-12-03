@@ -42,7 +42,10 @@ export const Storage = (pallet: string) => {
       }
     ) => string
     dec: Decoder<T>
-    keyDecoder: (value: string) => {
+    keyDecoder: (
+      value: string,
+      sliced?: boolean,
+    ) => {
       [K in keyof A]: A[K] extends EncoderWithHash<infer V> ? V : unknown
     }
   } => {
@@ -55,15 +58,18 @@ export const Storage = (pallet: string) => {
 
     const keyDecoder = (
       key: string,
+      sliced = false,
     ): {
       [K in keyof A]: A[K] extends EncoderWithHash<infer V> ? V : unknown
     } => {
-      if (!key.startsWith(palletItemEncodedHex))
+      if (sliced || !key.startsWith(palletItemEncodedHex))
         throw new Error(`key does not match this storage (${pallet}.${name})`)
 
       if (encoders.length === 0) return [] as any
 
-      const argsKey = fromHex(key.slice(palletItemEncodedHex.length))
+      const argsKey = fromHex(
+        sliced ? key : key.slice(palletItemEncodedHex.length),
+      )
       const result = new Array<any>(encoders.length)
       for (let i = 0, cur = 0; i < encoders.length; i++) {
         const [codec, hasher] = encoders[i]

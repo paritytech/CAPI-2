@@ -24,6 +24,7 @@ import {
   minCompatLevel,
 } from "./compatibility"
 import { CompatibilityLevel } from "@polkadot-api/metadata-compatibility"
+import { watchFinalizedEntries } from "./watch-entries"
 
 type CallOptions = Partial<{
   /**
@@ -133,6 +134,11 @@ export type StorageEntryWithKeys<
   getEntries: (
     ...args: WithCallOptions<PossibleParents<Args>>
   ) => Promise<Array<{ keyArgs: ArgsOut; value: NonNullable<Payload> }>>
+
+  watchEntries: (...args: PossibleParents<Args>) => Observable<{
+    upserted: Map<ArgsOut, NonNullable<Payload>>
+    deleted: Array<ArgsOut>
+  }>
 } & (Unsafe extends true ? {} : CompatibilityFunctions<D>)
 
 export type StorageEntry<
@@ -332,6 +338,10 @@ export const createStorageEntry = (
       keyArgs.map((args) => getValue(...(options ? [...args, options] : args))),
     )
 
+  const watchEntries: any = (...args: Array<any>) => {
+    return watchFinalizedEntries(pallet, name, args, chainHead)
+  }
+
   return {
     isCompatible,
     getCompatibilityLevel,
@@ -339,5 +349,6 @@ export const createStorageEntry = (
     getValues,
     getEntries,
     watchValue,
+    watchEntries,
   }
 }

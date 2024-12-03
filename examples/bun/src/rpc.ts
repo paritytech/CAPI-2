@@ -1,36 +1,23 @@
 import { CompatibilityLevel, createClient } from "polkadot-api"
 import { getWsProvider } from "polkadot-api/ws-provider/web"
-import { wnd } from "@polkadot-api/descriptors"
+import { MultiAddress, wnd } from "@polkadot-api/descriptors"
+import { withPolkadotSdkCompat } from "polkadot-api/polkadot-sdk-compat"
+import { withLogsRecorder } from "polkadot-api/logs-provider"
+import { appendFileSync, existsSync, rmSync } from "fs"
 
-const client = createClient(getWsProvider("wss://westend-rpc.polkadot.io"))
+const WIRE_FILE = "wire-logs-rpc.txt"
+if (existsSync(WIRE_FILE)) rmSync(WIRE_FILE)
+
+const client = createClient(
+  withPolkadotSdkCompat(
+    withLogsRecorder((log) => {
+      appendFileSync(WIRE_FILE, log + "\n")
+    }, getWsProvider("wss://westend-rpc.polkadot.io")),
+  ),
+)
 const testApi = client.getTypedApi(wnd)
 
-const isCompatible = (level: CompatibilityLevel) =>
-  level >= CompatibilityLevel.BackwardsCompatible
-
-async function run() {
-  const nominationsQuotaIsCompatible = isCompatible(
-    await testApi.apis.StakingApi.nominations_quota.getCompatibilityLevel(),
-  )
-  console.log({ nominationsQuotaIsCompatible })
-
-  const token = await testApi.compatibilityToken
-
-  const auctionEndingIsCompatible = isCompatible(
-    testApi.constants.Auctions.EndingPeriod.getCompatibilityLevel(token),
-  )
-
-  console.log({ auctionEndingIsCompatible })
-
-  if (auctionEndingIsCompatible) {
-    console.log(testApi.constants.Auctions.EndingPeriod(token))
-  }
-
-  const chainSpecData = await client.getChainSpecData()
-  console.log({ chainSpecData })
-
-  client.destroy()
-}
-
-await run()
-process.exit(0)
+testApi.query.Staking.Nominators.watchEntries().subscribe(
+  console.log,
+  console.error,
+)
